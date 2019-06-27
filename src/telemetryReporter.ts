@@ -6,18 +6,29 @@
 
 import VsCodeTelemetryReporter from 'vscode-extension-telemetry';
 
+/**
+ * Holds additional properties to send along with an event.
+ */
 export interface TelemetryEventProperties {
 	[key: string]: string;
 }
 
+/**
+ * Holds additional measures to send along with an event.
+ */
 export interface TelemetryEventMeasures {
 	[key: string]: number;
 }
 
+/**
+ * Connection info properties to add into an event.
+ */
 export interface TelemetryConnectionInfo {
-	authenticationType?: string,
-	providerName?: string,
-	serverType?: string,
+	authenticationType?: string;
+	providerName?: string;
+	serverType?: string;
+	engineType?: string;
+	// If adding new fields here make sure to update withConnectionInfo below with the new fields
 }
 
 /**
@@ -84,7 +95,8 @@ class TelemetryEventImpl implements TelemetryEvent {
 			{
 				authenticationType: connectionInfo.authenticationType,
 				providerName: connectionInfo.providerName,
-				serverType: connectionInfo.serverType
+				serverType: connectionInfo.serverType,
+				engineType: connectionInfo.engineType
 			});
 		return this;
 	}
@@ -140,8 +152,8 @@ export default class TelemetryReporter {
 	 * @param target The name of the item being acted on
 	 * @param source The source of the action
 	 */
-	public sendActionEvent(view: string, action: string, target: string = '', source: string = ''): void {
-		this.createActionEvent(view, action, target, source).send();
+	public sendActionEvent(view: string, action: string, target: string = '', source: string = '', durationInMs?: number): void {
+		this.createActionEvent(view, action, target, source, durationInMs).send();
 	}
 
 	/**
