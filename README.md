@@ -41,11 +41,19 @@ Follow [guide to set up Application Insights](https://docs.microsoft.com/en-us/a
 
  ...
  // send event any time after activation
- reporter.sendViewEvent('connectionDialog');
- reporter.sendActionEvent('connectionDialog', 'Click', 'OKButton');
- reporter.sendMetricsEvent('connectionDialog', { 'dialogLoadTimeMs', 578 });
- reporter.sendErrorEvent('connectionDialog', 'connectionFailed', '4060', 'SqlException');
 
+ // Immediately send event
+ reporter.sendViewEvent('ConnectionDialog');
+ reporter.sendActionEvent('ConnectionDialog', 'Click', 'OKButton', 'Mouse', 123);
+ reporter.sendMetricsEvent({ 'dialogLoadTimeMs', 578 }, 'ConnectionDialog');
+ reporter.sendErrorEvent('ConnectionDialog', 'connectionFailed', '4060', 'SqlException');
+
+// Add on additional properties and then send event
+reporter.createViewEvent('ConnectionDialog')
+	.withAdditionalProperties( { myProp: 'MyPropValue' })
+	.withAdditionalMeasurements( { myMeasure: 123 })
+	.withConnectionInfo(connectionProfile)
+	.send();
   ```
 
 # common properties
