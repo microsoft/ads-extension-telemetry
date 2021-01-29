@@ -65,8 +65,8 @@ class TelemetryEventImpl implements TelemetryEvent {
 		private properties?: TelemetryEventProperties,
 		private measurements?: TelemetryEventMeasures)
 	{
-		properties = properties || { };
-		measurements = measurements || { };
+		this.properties = properties || { };
+		this.measurements = measurements || { };
 	}
 
 	public send(): void {
