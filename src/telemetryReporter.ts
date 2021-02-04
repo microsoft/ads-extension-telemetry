@@ -4,6 +4,7 @@
 
 'use strict';
 
+import * as azdata from 'azdata';
 import VsCodeTelemetryReporter from 'vscode-extension-telemetry';
 
 /**
@@ -58,6 +59,12 @@ export interface TelemetryEvent {
 	 */
 	withConnectionInfo(connectionInfo: TelemetryConnectionInfo): TelemetryEvent;
 }
+
+const commonProperties =  {
+	// Temporarily cast to any until types are updated with new property
+	'common.adsversion': (azdata as any).version
+};
+
 class TelemetryEventImpl implements TelemetryEvent {
 	constructor(
 		private reporter: VsCodeTelemetryReporter,
@@ -66,6 +73,7 @@ class TelemetryEventImpl implements TelemetryEvent {
 		private measurements?: TelemetryEventMeasures)
 	{
 		this.properties = properties || { };
+		Object.assign(this.properties, commonProperties);
 		this.measurements = measurements || { };
 	}
 
