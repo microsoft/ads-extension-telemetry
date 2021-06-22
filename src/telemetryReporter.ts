@@ -4,7 +4,7 @@
 
 'use strict';
 
-import * as azdata from 'azdata';
+import type * as azdataType from 'azdata';
 import VsCodeTelemetryReporter from 'vscode-extension-telemetry';
 
 /**
@@ -60,21 +60,24 @@ export interface TelemetryEvent {
 	withConnectionInfo(connectionInfo: TelemetryConnectionInfo): TelemetryEvent;
 }
 
-const commonProperties =  {
-	// Temporarily cast to any until types are updated with new property
-	'common.adsversion': (azdata as any).version
-};
+const commonProperties: TelemetryEventProperties = {}
+try {
+	const azdata: typeof azdataType = require('azdata');
+	commonProperties['common.adsversion'] = azdata?.version
+} catch (err) {
+	// no-op when we're not in a context that has azdata available
+}
+
 
 class TelemetryEventImpl implements TelemetryEvent {
 	constructor(
 		private reporter: VsCodeTelemetryReporter,
 		private eventName: string,
 		private properties?: TelemetryEventProperties,
-		private measurements?: TelemetryEventMeasures)
-	{
-		this.properties = properties || { };
+		private measurements?: TelemetryEventMeasures) {
+		this.properties = properties || {};
 		Object.assign(this.properties, commonProperties);
-		this.measurements = measurements || { };
+		this.measurements = measurements || {};
 	}
 
 	public send(): void {
@@ -144,7 +147,7 @@ export default class TelemetryReporter {
 	 * @param source The source of the action
 	 */
 	public createActionEvent(view: string, action: string, target: string = '', source: string = '', durationInMs?: number): TelemetryEvent {
-		const measures:TelemetryEventMeasures = durationInMs ? { durationInMs: durationInMs } : { };
+		const measures: TelemetryEventMeasures = durationInMs ? { durationInMs: durationInMs } : {};
 		return new TelemetryEventImpl(this._telemetryReporter, 'action', {
 			view: view,
 			action: action,
@@ -169,7 +172,7 @@ export default class TelemetryReporter {
 	 * @param metrics The metrics to send
 	 */
 	public createMetricsEvent(metrics: TelemetryEventMeasures, groupName: string = ''): TelemetryEvent {
-		return new TelemetryEventImpl(this._telemetryReporter, 'metrics', {groupName: groupName}, metrics);
+		return new TelemetryEventImpl(this._telemetryReporter, 'metrics', { groupName: groupName }, metrics);
 	}
 
 	/**

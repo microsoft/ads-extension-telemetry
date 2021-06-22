@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@types/azdata@^1.25.0":
-  version "1.25.0"
-  resolved "https://registry.yarnpkg.com/@types/azdata/-/azdata-1.25.0.tgz#ae353317408358669f6c27987422d5b56da12429"
-  integrity sha512-Q13MATghre9+C34/YnitHfAa01tbfZm6z/KJZwrMXJ+RjNAlpEb8ym6gazMS40WQCEr8YBfl3KRoi12dMCjdcg==
+"@types/azdata@^1.29.0":
+  version "1.29.0"
+  resolved "https://registry.yarnpkg.com/@types/azdata/-/azdata-1.29.0.tgz#0fa3e6d6ae7130babf6bc9e40781a01541622c76"
+  integrity sha512-KExDgLBV+HxHwy7YASwAw7l8bHd5Xl0MjB53j5YubJgQU/vsll+qn2U+MRegIhCy05bstQV/Tat1lIrtsf0CnA==
   dependencies:
     "@types/vscode" "*"
 
@@ -95,10 +95,10 @@ stack-chain@^1.3.7:
   resolved "https://registry.yarnpkg.com/stack-chain/-/stack-chain-1.3.7.tgz#d192c9ff4ea6a22c94c4dd459171e3f00cea1285"
   integrity sha1-0ZLJ/06moiyUxN1FkXHj8AzqEoU=
 
-typescript@3.4.5:
-  version "3.4.5"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.5.tgz#2d2618d10bb566572b8d7aad5180d84257d70a99"
-  integrity sha512-YycBxUb49UUhdNMU5aJ7z5Ej2XGmaIBL0x34vZ82fn3hGvD+bgrMrVDpatgz2f7YxUMJxMkbWxJZeAvDxVe7Vw==
+typescript@4.3.4:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.4.tgz#3f85b986945bcf31071decdd96cf8bfa65f9dcbc"
+  integrity sha512-uauPG7XZn9F/mo+7MrsRjyvbxFpzemRjKEZXS4AK83oP2KKOJPvb+9cO/gmnv8arWZvhnjVOXz7B49m1l0e9Ew==
 
 vscode-extension-telemetry@^0.1.6:
   version "0.1.6"
