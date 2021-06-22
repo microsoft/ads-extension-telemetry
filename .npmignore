@@ -6,3 +6,4 @@ src
 .npmignore
 tsconfig.json
 *.tgz
+.github
