@@ -20,9 +20,9 @@
     "vscode-extension-telemetry": "^0.1.6"
   },
   "devDependencies": {
-    "@types/azdata": "^1.25.0",
+    "@types/azdata": "^1.29.0",
     "@types/node": "^8.0.24",
-    "typescript": "3.4.5"
+    "typescript": "4.3.4"
   },
   "repository": {
     "type": "git",
