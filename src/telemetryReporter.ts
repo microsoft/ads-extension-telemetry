@@ -5,7 +5,7 @@
 'use strict';
 
 import type * as azdataType from 'azdata';
-import VsCodeTelemetryReporter from 'vscode-extension-telemetry';
+import VsCodeTelemetryReporter from '@vscode/extension-telemetry';
 
 /**
  * Holds additional properties to send along with an event.
@@ -92,17 +92,17 @@ class TelemetryEventImpl implements TelemetryEvent {
 	}
 
 	public withAdditionalProperties(additionalProperties: TelemetryEventProperties): TelemetryEvent {
-		Object.assign(this.properties, additionalProperties);
+		Object.assign(this.properties!, additionalProperties);
 		return this;
 	}
 
 	public withAdditionalMeasurements(additionalMeasurements: TelemetryEventMeasures): TelemetryEvent {
-		Object.assign(this.measurements, additionalMeasurements);
+		Object.assign(this.measurements!, additionalMeasurements);
 		return this;
 	}
 
 	public withConnectionInfo(connectionInfo: TelemetryConnectionInfo): TelemetryEvent {
-		Object.assign(this.properties,
+		Object.assign(this.properties!,
 			{
 				authenticationType: connectionInfo.authenticationType,
 				providerName: connectionInfo.providerName,
