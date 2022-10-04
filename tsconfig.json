@@ -6,10 +6,8 @@
 		"declaration": true,
 		"stripInternal": true,
 		"outDir": "./lib",
-		"strictNullChecks": true,
-		"noImplicitAny": true,
+		"strict": true,
 		"noImplicitReturns": true,
-		"noImplicitThis": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"lib": [
