@@ -2,10 +2,9 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-'use strict';
-
 import type * as azdataType from 'azdata';
 import VsCodeTelemetryReporter from '@vscode/extension-telemetry';
+import { TimedAction } from './timedAction';
 
 /**
  * Holds additional properties to send along with an event.
@@ -113,10 +112,16 @@ class TelemetryEventImpl implements TelemetryEvent {
 	}
 }
 
-export default class TelemetryReporter {
+export class TelemetryReporter<V extends string = string, A extends string = string> {
 
 	private _telemetryReporter: VsCodeTelemetryReporter;
 
+	/**
+	 *
+	 * @param extensionId The ID of the extension sending the event
+	 * @param extensionVersion The version of the extension sending the event
+	 * @param key The AI Key to use
+	 */
 	constructor(extensionId: string, extensionVersion: string, key: string) {
 		this._telemetryReporter = new VsCodeTelemetryReporter(extensionId, extensionVersion, key);
 	}
@@ -125,7 +130,7 @@ export default class TelemetryReporter {
 	 * Creates a View event that can be sent later. This is used to log that a particular page or item was seen.
 	 * @param view The name of the page or item that was viewed
 	 */
-	public createViewEvent(view: string): TelemetryEvent {
+	public createViewEvent(view: V): TelemetryEvent {
 		return new TelemetryEventImpl(this._telemetryReporter, 'view', {
 			view: view
 		});
@@ -135,7 +140,7 @@ export default class TelemetryReporter {
 	 * Sends a View event. This is used to log that a particular page or item was seen.
 	 * @param view The name of the page or item that was viewed
 	 */
-	public sendViewEvent(view: string): void {
+	public sendViewEvent(view: V): void {
 		this.createViewEvent(view).send();
 	}
 
@@ -145,8 +150,9 @@ export default class TelemetryReporter {
 	 * @param action The name of the action taken
 	 * @param target The name of the item being acted on
 	 * @param source The source of the action
+	 * @param durationInMs The duration the action took to execute
 	 */
-	public createActionEvent(view: string, action: string, target: string = '', source: string = '', durationInMs?: number): TelemetryEvent {
+	public createActionEvent(view: V, action: A, target: string = '', source: string = '', durationInMs?: number): TelemetryEvent {
 		const measures: TelemetryEventMeasures = durationInMs ? { durationInMs: durationInMs } : {};
 		return new TelemetryEventImpl(this._telemetryReporter, 'action', {
 			view: view,
@@ -162,25 +168,41 @@ export default class TelemetryReporter {
 	 * @param action The name of the action taken
 	 * @param target The name of the item being acted on
 	 * @param source The source of the action
+	 * @param durationInMs The duration the action took to execute
 	 */
-	public sendActionEvent(view: string, action: string, target: string = '', source: string = '', durationInMs?: number): void {
+	public sendActionEvent(view: V, action: A, target: string = '', source: string = '', durationInMs?: number): void {
 		this.createActionEvent(view, action, target, source, durationInMs).send();
 	}
 
 	/**
-	 * Creates a Metrics event that can be sent later. This is used to log measurements taken.
-	 * @param metrics The metrics to send
+	 * Creates a TimedAction - which will create and send an action event with a duration when send() is called. The timer
+	 * starts on construction and ends when send() is called.
+	 * @param view The view this action originates from
+	 * @param action The name of the action
+	 * @param target The name of the item being acted on
+	 * @param source The source of the action
+	 * @returns The TimedAction object
 	 */
-	public createMetricsEvent(metrics: TelemetryEventMeasures, groupName: string = ''): TelemetryEvent {
-		return new TelemetryEventImpl(this._telemetryReporter, 'metrics', { groupName: groupName }, metrics);
+	public createTimedAction(view: V, action: A, target?: string, source?: string): TimedAction {
+		return new TimedAction(this, view, action, target, source)
+	}
+
+	/**
+	 * Creates a Metrics event that can be sent later. This is used to log measurements taken.
+	 * @param measurements The metrics to send
+	 * @param groupName The name of the group these measurements belong to
+	 */
+	public createMetricsEvent(measurements: TelemetryEventMeasures, groupName: string = ''): TelemetryEvent {
+		return new TelemetryEventImpl(this._telemetryReporter, 'metrics', { groupName: groupName }, measurements);
 	}
 
 	/**
 	 * Sends a Metrics event. This is used to log measurements taken.
-	 * @param measurements The metrics to send
+	 * @param measurements The measurements to send
+	 * @param groupName The name of the group these measurements belong to
 	 */
-	public sendMetricsEvent(metrics: TelemetryEventMeasures, groupName: string = ''): void {
-		this.createMetricsEvent(metrics, groupName).send();
+	public sendMetricsEvent(measurements: TelemetryEventMeasures, groupName: string = ''): void {
+		this.createMetricsEvent(measurements, groupName).send();
 	}
 
 	/**
@@ -189,9 +211,8 @@ export default class TelemetryReporter {
 	 * @param name The friendly name of the error
 	 * @param errorCode The error code returned
 	 * @param errorType The specific type of error
-	 * @param properties Optional additional properties
 	 */
-	public createErrorEvent(view: string, name: string, errorCode: string = '', errorType: string = ''): TelemetryEvent {
+	public createErrorEvent(view: V, name: string, errorCode: string = '', errorType: string = ''): TelemetryEvent {
 		return new TelemetryEventImpl(this._telemetryReporter, 'error', {
 			view: view,
 			name: name,
@@ -207,7 +228,7 @@ export default class TelemetryReporter {
 	 * @param errorCode The error code returned
 	 * @param errorType The specific type of error
 	 */
-	public sendErrorEvent(view: string, name: string, errorCode: string = '', errorType: string = ''): void {
+	public sendErrorEvent(view: V, name: string, errorCode: string = '', errorType: string = ''): void {
 		this.createErrorEvent(view, name, errorCode, errorType).send();
 	}
 
