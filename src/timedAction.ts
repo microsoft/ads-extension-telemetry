@@ -2,7 +2,7 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import { TelemetryEventMeasures, TelemetryEventProperties, TelemetryReporter } from "./telemetryReporter";
+import TelemetryReporter, { TelemetryEventMeasures, TelemetryEventProperties } from "./telemetryReporter";
 
 /**
  * A helper class to send an Action event with a duration, timer starts on construction and ends when send() is called.

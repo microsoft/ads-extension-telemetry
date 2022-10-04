@@ -112,7 +112,7 @@ class TelemetryEventImpl implements TelemetryEvent {
 	}
 }
 
-export class TelemetryReporter<V extends string = string, A extends string = string> {
+export default class TelemetryReporter<V extends string = string, A extends string = string> {
 
 	private _telemetryReporter: VsCodeTelemetryReporter;
 
