@@ -59,14 +59,6 @@ export interface TelemetryEvent {
 	withConnectionInfo(connectionInfo: TelemetryConnectionInfo): TelemetryEvent;
 }
 
-const commonProperties: TelemetryEventProperties = {}
-try {
-	const azdata: typeof azdataType = require('azdata');
-	commonProperties['common.adsversion'] = azdata?.version
-} catch (err) {
-	// no-op when we're not in a context that has azdata available
-}
-
 
 class TelemetryEventImpl implements TelemetryEvent {
 	constructor(
@@ -75,7 +67,6 @@ class TelemetryEventImpl implements TelemetryEvent {
 		private properties?: TelemetryEventProperties,
 		private measurements?: TelemetryEventMeasures) {
 		this.properties = properties || {};
-		Object.assign(this.properties, commonProperties);
 		this.measurements = measurements || {};
 	}
 
@@ -115,7 +106,7 @@ class TelemetryEventImpl implements TelemetryEvent {
 export default class TelemetryReporter<V extends string = string, A extends string = string> {
 
 	private _telemetryReporter: VsCodeTelemetryReporter;
-
+	private _commonProperties: TelemetryEventProperties = { };
 	/**
 	 *
 	 * @param extensionId The ID of the extension sending the event
@@ -124,6 +115,14 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 */
 	constructor(extensionId: string, extensionVersion: string, key: string) {
 		this._telemetryReporter = new VsCodeTelemetryReporter(extensionId, extensionVersion, key);
+		try {
+			const azdata: typeof azdataType = require('azdata');
+			this._commonProperties['common.adsversion'] = azdata?.version
+		} catch (err) {
+			// no-op when we're not in a context that has azdata available
+		}
+		// Overwrite the default version (a string similar to PostChannel=3.2.6)
+		this._commonProperties['version'] = extensionVersion;
 	}
 
 	/**
@@ -131,9 +130,8 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param view The name of the page or item that was viewed
 	 */
 	public createViewEvent(view: V): TelemetryEvent {
-		return new TelemetryEventImpl(this._telemetryReporter, 'view', {
-			view: view
-		});
+		const properties = Object.assign({ view }, this._commonProperties);
+		return new TelemetryEventImpl(this._telemetryReporter, 'view', properties);
 	}
 
 	/**
@@ -153,13 +151,9 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param durationInMs The duration the action took to execute
 	 */
 	public createActionEvent(view: V, action: A, target: string = '', source: string = '', durationInMs?: number): TelemetryEvent {
+		const properties = Object.assign({ view, action, target, source }, this._commonProperties);
 		const measures: TelemetryEventMeasures = durationInMs ? { durationInMs: durationInMs } : {};
-		return new TelemetryEventImpl(this._telemetryReporter, 'action', {
-			view: view,
-			action: action,
-			target: target,
-			source: source
-		}, measures);
+		return new TelemetryEventImpl(this._telemetryReporter, 'action', properties, measures);
 	}
 
 	/**
@@ -193,7 +187,8 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param groupName The name of the group these measurements belong to
 	 */
 	public createMetricsEvent(measurements: TelemetryEventMeasures, groupName: string = ''): TelemetryEvent {
-		return new TelemetryEventImpl(this._telemetryReporter, 'metrics', { groupName: groupName }, measurements);
+		const properties = Object.assign({ groupName }, this._commonProperties);
+		return new TelemetryEventImpl(this._telemetryReporter, 'metrics', properties, measurements);
 	}
 
 	/**
@@ -213,12 +208,8 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param errorType The specific type of error
 	 */
 	public createErrorEvent(view: V, name: string, errorCode: string = '', errorType: string = ''): TelemetryEvent {
-		return new TelemetryEventImpl(this._telemetryReporter, 'error', {
-			view: view,
-			name: name,
-			errorCode: errorCode,
-			errorType: errorType
-		});
+		const properties = Object.assign({ view, name, errorCode, errorType }, this._commonProperties);
+		return new TelemetryEventImpl(this._telemetryReporter, 'error', properties);
 	}
 
 	/**
@@ -240,7 +231,8 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param measurements The list of measurements to send along with the event
 	 */
 	public createTelemetryEvent(eventName: string, properties?: TelemetryEventProperties, measurements?: TelemetryEventMeasures): TelemetryEvent {
-		return new TelemetryEventImpl(this._telemetryReporter, eventName, properties, measurements);
+		const props = Object.assign({ }, properties, this._commonProperties);
+		return new TelemetryEventImpl(this._telemetryReporter, eventName, props, measurements);
 	}
 
 	/**
