@@ -59,7 +59,42 @@ export interface TelemetryEvent {
 	withConnectionInfo(connectionInfo: TelemetryConnectionInfo): TelemetryEvent;
 }
 
-const commonProperties: TelemetryEventProperties = {}
+/**
+ * List of domain names that we use to determine if a user is internal to Microsoft.
+ */
+const msftInternalDomains = [
+    "redmond.corp.microsoft.com",
+    "northamerica.corp.microsoft.com",
+    "fareast.corp.microsoft.com",
+    "ntdev.corp.microsoft.com",
+    "wingroup.corp.microsoft.com",
+    "southpacific.corp.microsoft.com",
+    "wingroup.windeploy.ntdev.microsoft.com",
+    "ddnet.microsoft.com",
+    "europe.corp.microsoft.com"
+];
+
+/**
+ * Attempts to determine whether this machine is an MSFT internal user. This is not 100% accurate and isn't
+ * meant to be, but is good enough for our cases.
+ * @returns true if internal, false otherwise
+ */
+function isMsftInternal(): boolean {
+    // Original logic from https://github.com/Microsoft/azuredatastudio/blob/9a14fef8075965f62c2d4efdfa1a30bf6ddddcf9/src/vs/platform/telemetry/common/telemetryUtils.ts#L260
+    // This is a best-effort guess using the DNS domain for the user -
+	const userDnsDomain = process.env['USERDNSDOMAIN'];
+	if (!userDnsDomain) {
+		return false;
+	}
+
+	const domain = userDnsDomain.toLowerCase();
+	return msftInternalDomains.some(msftDomain => domain === msftDomain);
+}
+
+const commonProperties: TelemetryEventProperties = {
+    'common.msftInternal': isMsftInternal().toString()
+}
+
 try {
 	const azdata: typeof azdataType = require('azdata');
 	commonProperties['common.adsversion'] = azdata?.version
