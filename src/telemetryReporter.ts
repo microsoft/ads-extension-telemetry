@@ -81,7 +81,7 @@ const msftInternalDomains = [
  */
 function isMsftInternal(): boolean {
     // Original logic from https://github.com/Microsoft/azuredatastudio/blob/9a14fef8075965f62c2d4efdfa1a30bf6ddddcf9/src/vs/platform/telemetry/common/telemetryUtils.ts#L260
-    // This is a best-effort guess using the DNS domain for the user -
+    // This is a best-effort guess using the DNS domain for the user
 	const userDnsDomain = process.env['USERDNSDOMAIN'];
 	if (!userDnsDomain) {
 		return false;
@@ -92,7 +92,12 @@ function isMsftInternal(): boolean {
 }
 
 const commonMeasurements: TelemetryEventMeasures = {
-    // Use a number since that's what ADS core uses
+    // Use a number since that's what ADS core uses.
+    // NOTE: We do NOT set the UTC flag like core
+    // (https://github.com/Microsoft/azuredatastudio/blob/9a14fef8075965f62c2d4efdfa1a30bf6ddddcf9/src/vs/platform/telemetry/common/1dsAppender.ts#L53)
+    // since we don't have direct access to the internal appender instance and currently the package
+    // only sets that flag is "telemetry.internalTesting" is true
+    // https://github.com/microsoft/vscode-extension-telemetry/blob/04e50fbc94a922f5e2ee6eb2cf2236491f1f99d9/src/common/1dsClientFactory.ts#L52
     'common.msftInternal': isMsftInternal() ? 1 : 0
 }
 
