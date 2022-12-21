@@ -92,6 +92,8 @@ function isMsftInternal(): boolean {
 }
 
 const commonProperties: TelemetryEventProperties = {
+    // Cast to a string since that's what properties require. Core ADS currently keeps it as a bool which means it ends up in the Measurements, but
+    // that doesn't make sense so doing it slightly differently here.
     'common.msftInternal': isMsftInternal().toString()
 }
 
