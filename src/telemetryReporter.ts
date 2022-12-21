@@ -91,11 +91,12 @@ function isMsftInternal(): boolean {
 	return msftInternalDomains.some(msftDomain => domain === msftDomain);
 }
 
-const commonProperties: TelemetryEventProperties = {
-    // Cast to a string since that's what properties require. Core ADS currently keeps it as a bool which means it ends up in the Measurements, but
-    // that doesn't make sense so doing it slightly differently here.
-    'common.msftInternal': isMsftInternal().toString()
+const commonMeasurements: TelemetryEventMeasures = {
+    // Use a number since that's what ADS core uses
+    'common.msftInternal': isMsftInternal() ? 1 : 0
 }
+
+const commonProperties: TelemetryEventProperties = { }
 
 try {
 	const azdata: typeof azdataType = require('azdata');
@@ -103,6 +104,8 @@ try {
 } catch (err) {
 	// no-op when we're not in a context that has azdata available
 }
+
+
 
 
 class TelemetryEventImpl implements TelemetryEvent {
@@ -113,7 +116,8 @@ class TelemetryEventImpl implements TelemetryEvent {
 		private measurements?: TelemetryEventMeasures) {
 		this.properties = properties || {};
 		Object.assign(this.properties, commonProperties);
-		this.measurements = measurements || {};
+        this.measurements = measurements || {};
+        Object.assign(this.measurements, commonMeasurements);
 	}
 
 	public send(): void {
