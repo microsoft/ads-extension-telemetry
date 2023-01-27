@@ -305,6 +305,9 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 		this.createTelemetryEvent(eventName, properties, measurements).send();
 	}
 
+	/**
+	 * Disposes of the telemetry reporter. This flushes the remaining events and disposes of the telemetry client.
+	 */
 	public async dispose(): Promise<void> {
 		await this._telemetryReporter?.dispose();
 	}
