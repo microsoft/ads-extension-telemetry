@@ -63,15 +63,15 @@ export interface TelemetryEvent {
  * List of domain names that we use to determine if a user is internal to Microsoft.
  */
 const msftInternalDomains = [
-    "redmond.corp.microsoft.com",
-    "northamerica.corp.microsoft.com",
-    "fareast.corp.microsoft.com",
-    "ntdev.corp.microsoft.com",
-    "wingroup.corp.microsoft.com",
-    "southpacific.corp.microsoft.com",
-    "wingroup.windeploy.ntdev.microsoft.com",
-    "ddnet.microsoft.com",
-    "europe.corp.microsoft.com"
+	"redmond.corp.microsoft.com",
+	"northamerica.corp.microsoft.com",
+	"fareast.corp.microsoft.com",
+	"ntdev.corp.microsoft.com",
+	"wingroup.corp.microsoft.com",
+	"southpacific.corp.microsoft.com",
+	"wingroup.windeploy.ntdev.microsoft.com",
+	"ddnet.microsoft.com",
+	"europe.corp.microsoft.com"
 ];
 
 /**
@@ -80,8 +80,8 @@ const msftInternalDomains = [
  * @returns true if internal, false otherwise
  */
 function isMsftInternal(): boolean {
-    // Original logic from https://github.com/Microsoft/azuredatastudio/blob/9a14fef8075965f62c2d4efdfa1a30bf6ddddcf9/src/vs/platform/telemetry/common/telemetryUtils.ts#L260
-    // This is a best-effort guess using the DNS domain for the user
+	// Original logic from https://github.com/Microsoft/azuredatastudio/blob/9a14fef8075965f62c2d4efdfa1a30bf6ddddcf9/src/vs/platform/telemetry/common/telemetryUtils.ts#L260
+	// This is a best-effort guess using the DNS domain for the user
 	const userDnsDomain = process.env['USERDNSDOMAIN'];
 	if (!userDnsDomain) {
 		return false;
@@ -92,16 +92,16 @@ function isMsftInternal(): boolean {
 }
 
 const commonMeasurements: TelemetryEventMeasures = {
-    // Use a number since that's what ADS core uses.
-    // NOTE: We do NOT set the UTC flag like core
-    // (https://github.com/Microsoft/azuredatastudio/blob/9a14fef8075965f62c2d4efdfa1a30bf6ddddcf9/src/vs/platform/telemetry/common/1dsAppender.ts#L53)
-    // since we don't have direct access to the internal appender instance and currently the package
-    // only sets that flag is "telemetry.internalTesting" is true
-    // https://github.com/microsoft/vscode-extension-telemetry/blob/04e50fbc94a922f5e2ee6eb2cf2236491f1f99d9/src/common/1dsClientFactory.ts#L52
-    'common.msftInternal': isMsftInternal() ? 1 : 0
+	// Use a number since that's what ADS core uses.
+	// NOTE: We do NOT set the UTC flag like core
+	// (https://github.com/Microsoft/azuredatastudio/blob/9a14fef8075965f62c2d4efdfa1a30bf6ddddcf9/src/vs/platform/telemetry/common/1dsAppender.ts#L53)
+	// since we don't have direct access to the internal appender instance and currently the package
+	// only sets that flag is "telemetry.internalTesting" is true
+	// https://github.com/microsoft/vscode-extension-telemetry/blob/04e50fbc94a922f5e2ee6eb2cf2236491f1f99d9/src/common/1dsClientFactory.ts#L52
+	'common.msftInternal': isMsftInternal() ? 1 : 0
 }
 
-const commonProperties: TelemetryEventProperties = { }
+const commonProperties: TelemetryEventProperties = {}
 
 try {
 	const azdata: typeof azdataType = require('azdata');
@@ -115,19 +115,19 @@ try {
 
 class TelemetryEventImpl implements TelemetryEvent {
 	constructor(
-		private reporter: VsCodeTelemetryReporter,
+		private reporter: VsCodeTelemetryReporter | undefined,
 		private eventName: string,
 		private properties?: TelemetryEventProperties,
 		private measurements?: TelemetryEventMeasures) {
 		this.properties = properties || {};
 		Object.assign(this.properties, commonProperties);
-        this.measurements = measurements || {};
-        Object.assign(this.measurements, commonMeasurements);
+		this.measurements = measurements || {};
+		Object.assign(this.measurements, commonMeasurements);
 	}
 
 	public send(): void {
 		try {
-			this.reporter.sendTelemetryEvent(this.eventName, this.properties, this.measurements);
+			this.reporter?.sendTelemetryEvent(this.eventName, this.properties, this.measurements);
 		}
 		catch (e) {
 			// We don't want exceptions sending telemetry to break extensions so just log and ignore
@@ -160,7 +160,7 @@ class TelemetryEventImpl implements TelemetryEvent {
 
 export default class TelemetryReporter<V extends string = string, A extends string = string> {
 
-	private _telemetryReporter: VsCodeTelemetryReporter;
+	private _telemetryReporter: VsCodeTelemetryReporter | undefined = undefined;
 
 	/**
 	 *
@@ -169,7 +169,12 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param key The AI Key to use
 	 */
 	constructor(extensionId: string, extensionVersion: string, key: string) {
-		this._telemetryReporter = new VsCodeTelemetryReporter(extensionId, extensionVersion, key);
+		// Try to initialize the reporter, but don't throw if it fails so we don't break the extension
+		try {
+			this._telemetryReporter = new VsCodeTelemetryReporter(extensionId, extensionVersion, key);
+		} catch (e) {
+			console.error(`Error initializing TelemetryReporter for '${extensionId}'. ${(e as Error)?.message ?? e}`);
+		}
 	}
 
 	/**
@@ -300,7 +305,10 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 		this.createTelemetryEvent(eventName, properties, measurements).send();
 	}
 
-	public dispose(): Promise<any> {
-		return this._telemetryReporter.dispose();
+	/**
+	 * Disposes of the telemetry reporter. This flushes the remaining events and disposes of the telemetry client.
+	 */
+	public async dispose(): Promise<void> {
+		await this._telemetryReporter?.dispose();
 	}
 }
