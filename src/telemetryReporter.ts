@@ -262,6 +262,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param name The friendly name of the error
 	 * @param errorCode The error code returned
 	 * @param errorType The specific type of error
+	 * @deprecated Use createErrorEvent2
 	 */
 	public createErrorEvent(view: V, name: string, errorCode: string = '', errorType: string = ''): TelemetryEvent {
 		return new TelemetryEventImpl(this._telemetryReporter, 'error', {
@@ -278,9 +279,48 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param name The friendly name of the error
 	 * @param errorCode The error code returned
 	 * @param errorType The specific type of error
+	 * @deprecated Use sendErrorEvent2
 	 */
 	public sendErrorEvent(view: V, name: string, errorCode: string = '', errorType: string = ''): void {
 		this.createErrorEvent(view, name, errorCode, errorType).send();
+	}
+
+	/**
+	 * Creates a new Error event that can be sent later. This is used to log errors that occur.
+	 * @param view The name of the page or item where the error occurred
+	 * @param name The friendly name of the error
+	 * @param error The error. If an Error object the message and stack will be extracted and added to the event, otherwise the message will be set to error.toString()
+	 * @param errorCode The error code returned, default is empty
+	 * @param errorType The specific type of error, default is empty
+	 */
+	public createErrorEvent2(view: V, name: string, error: any = undefined, errorCode: string = '', errorType: string = ''): TelemetryEvent
+	{
+		const props: TelemetryEventProperties = {
+			view: view,
+			name: name,
+			errorCode: errorCode,
+			errorType: errorType
+		};
+		if (error instanceof Error) {
+			props.message = error.message;
+			props.stack = error.stack || ''
+		} else {
+			props.message = error?.toString();
+			props.stack = '';
+		}
+		return new TelemetryEventImpl(this._telemetryReporter, 'error', props);
+	}
+
+	/**
+	 * Sends a Error event. This is used to log errors that occur.
+	 * @param view The name of the page or item where the error occurred
+	 * @param name The friendly name of the error
+	 * @param error The error object. If an Error object the message and stack will be extracted and added to the event, otherwise the message will be set to error.toString()
+	 * @param errorCode The error code returned
+	 * @param errorType The specific type of error
+	 */
+	public sendErrorEvent2(view: V, name: string, error: any = undefined, errorCode: string = '', errorType: string = ''): void {
+		this.createErrorEvent2(view, name, error, errorCode, errorType).send();
 	}
 
 	/**
