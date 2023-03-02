@@ -21,17 +21,6 @@ export interface TelemetryEventMeasures {
 }
 
 /**
- * Connection info properties to add into an event.
- */
-export interface TelemetryConnectionInfo {
-	authenticationType?: string;
-	providerName?: string;
-	serverType?: string;
-	engineType?: string;
-	// If adding new fields here make sure to update withConnectionInfo below with the new fields
-}
-
-/**
  * A telemetry event which can be sent at a later time.
  */
 export interface TelemetryEvent {
@@ -56,7 +45,13 @@ export interface TelemetryEvent {
 	 * Adds additional connection-related information to this event.
 	 * @param connectionInfo The connection info to add. Only the fields in TelemetryConnectionInfo are included, all others are ignored.
 	 */
-	withConnectionInfo(connectionInfo: TelemetryConnectionInfo): TelemetryEvent;
+	withConnectionInfo(connectionInfo: azdataType.IConnectionProfile): TelemetryEvent;
+
+	/**
+	 * Adds additional server-related information to this event.
+	 * @param serverInfo The connection info to add. Only the fields in TelemetryConnectionInfo are included, all others are ignored.
+	 */
+	withServerInfo(serverInfo: azdataType.ServerInfo): TelemetryEvent;
 }
 
 /**
@@ -146,13 +141,24 @@ class TelemetryEventImpl implements TelemetryEvent {
 		return this;
 	}
 
-	public withConnectionInfo(connectionInfo: TelemetryConnectionInfo): TelemetryEvent {
+	public withConnectionInfo(connectionInfo: azdataType.IConnectionProfile): TelemetryEvent {
+		// IMPORTANT - If making changes here the same changes should generally be made in the AdsTelemetryService version as well
 		Object.assign(this.properties!,
 			{
 				authenticationType: connectionInfo.authenticationType,
-				providerName: connectionInfo.providerName,
-				serverType: connectionInfo.serverType,
-				engineType: connectionInfo.engineType
+				providerName: connectionInfo.providerName
+			});
+		return this;
+	}
+
+	public withServerInfo(serverInfo: azdataType.ServerInfo): TelemetryEvent {
+		// IMPORTANT - If making changes here the same changes should generally be made in the AdsTelemetryService version as well
+		Object.assign(this.properties!,
+			{
+				connectionType: serverInfo?.isCloud !== undefined ? (serverInfo.isCloud ? 'Azure' : 'Standalone') : '',
+				serverVersion: serverInfo?.serverVersion ?? '',
+				serverEdition: serverInfo?.serverEdition ?? '',
+				serverEngineEdition: serverInfo?.engineEditionId ?? ''
 			});
 		return this;
 	}
@@ -293,8 +299,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param errorCode The error code returned, default is empty
 	 * @param errorType The specific type of error, default is empty
 	 */
-	public createErrorEvent2(view: V, name: string, error: any = undefined, errorCode: string = '', errorType: string = ''): TelemetryEvent
-	{
+	public createErrorEvent2(view: V, name: string, error: any = undefined, errorCode: string = '', errorType: string = ''): TelemetryEvent {
 		const props: TelemetryEventProperties = {
 			view: view,
 			name: name,
