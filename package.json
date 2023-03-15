@@ -1,7 +1,7 @@
 {
   "name": "@microsoft/ads-extension-telemetry",
   "description": "A module for first party Microsoft extensions to report consistent telemetry.",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "author": {
     "name": "Microsoft Corporation"
   },

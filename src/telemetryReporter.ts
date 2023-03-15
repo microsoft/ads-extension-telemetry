@@ -296,10 +296,11 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param view The name of the page or item where the error occurred
 	 * @param name The friendly name of the error
 	 * @param error The error. If an Error object the message and stack will be extracted and added to the event, otherwise the message will be set to error.toString()
+	 * @param includeMessage Whether the error message is included. This can often contain sensitive information, so by default is false. Only set to true if you're absolutely sure there will be no sensitive information included.
 	 * @param errorCode The error code returned, default is empty
 	 * @param errorType The specific type of error, default is empty
 	 */
-	public createErrorEvent2(view: V, name: string, error: any = undefined, errorCode: string = '', errorType: string = ''): TelemetryEvent {
+	public createErrorEvent2(view: V, name: string, error: any = undefined, includeMessage: boolean = false, errorCode: string = '', errorType: string = ''): TelemetryEvent {
 		const props: TelemetryEventProperties = {
 			view: view,
 			name: name,
@@ -307,10 +308,10 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 			errorType: errorType
 		};
 		if (error instanceof Error) {
-			props.message = error.message;
+			props.message = includeMessage === true ? error.message : '';
 			props.stack = error.stack || ''
 		} else {
-			props.message = error?.toString();
+			props.message = includeMessage === true ? error?.toString() : '';
 			props.stack = '';
 		}
 		return new TelemetryEventImpl(this._telemetryReporter, 'error', props);
@@ -321,11 +322,12 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param view The name of the page or item where the error occurred
 	 * @param name The friendly name of the error
 	 * @param error The error object. If an Error object the message and stack will be extracted and added to the event, otherwise the message will be set to error.toString()
+	 * @param includeMessage Whether the error message is included. This can often contain sensitive information, so by default is false. Only set to true if you're absolutely sure there will be no sensitive information included.
 	 * @param errorCode The error code returned
 	 * @param errorType The specific type of error
 	 */
-	public sendErrorEvent2(view: V, name: string, error: any = undefined, errorCode: string = '', errorType: string = ''): void {
-		this.createErrorEvent2(view, name, error, errorCode, errorType).send();
+	public sendErrorEvent2(view: V, name: string, error: any = undefined, includeMessage: boolean = false, errorCode: string = '', errorType: string = ''): void {
+		this.createErrorEvent2(view, name, error, includeMessage, errorCode, errorType).send();
 	}
 
 	/**
