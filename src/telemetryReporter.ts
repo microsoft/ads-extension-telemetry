@@ -309,7 +309,13 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 		};
 		if (error instanceof Error) {
 			props.message = includeMessage === true ? error.message : '';
-			props.stack = error.stack || ''
+			let stack = error.stack || '';
+			// Stack trace contains the message, so remove it if we aren't set to include it
+			if (includeMessage !== true && error.message) {
+				const regex = new RegExp(error.message, 'g');
+				stack = stack.replace(regex, '<REDACTED: error-message>')
+			}
+			props.stack = stack;
 		} else {
 			props.message = includeMessage === true ? error?.toString() : '';
 			props.stack = '';
