@@ -7,6 +7,16 @@ import VsCodeTelemetryReporter from '@vscode/extension-telemetry';
 import { TimedAction } from './timedAction';
 
 /**
+ * Subset of azdata.IConnectionProfile properties to be sent as telemetry properties
+ */
+export type ConnectionInfo = Partial<Pick<azdataType.IConnectionProfile, 'authenticationType' | 'providerName'>>;
+
+/**
+ * Subset of azdata.ServerInfo properties to be sent as telemetry properties
+ */
+export type ServerInfo = Partial<Pick<azdataType.ServerInfo, 'isCloud' | 'serverVersion' | 'serverEdition' | 'engineEditionId'>>;
+
+/**
  * Holds additional properties to send along with an event.
  */
 export interface TelemetryEventProperties {
@@ -43,15 +53,15 @@ export interface TelemetryEvent {
 
 	/**
 	 * Adds additional connection-related information to this event.
-	 * @param connectionInfo The connection info to add. Only the fields in TelemetryConnectionInfo are included, all others are ignored.
+	 * @param connectionInfo The connection info to add.
 	 */
-	withConnectionInfo(connectionInfo: azdataType.IConnectionProfile): TelemetryEvent;
+	withConnectionInfo(connectionInfo: ConnectionInfo): TelemetryEvent;
 
 	/**
 	 * Adds additional server-related information to this event.
-	 * @param serverInfo The connection info to add. Only the fields in TelemetryConnectionInfo are included, all others are ignored.
+	 * @param serverInfo The server info to add.
 	 */
-	withServerInfo(serverInfo: azdataType.ServerInfo): TelemetryEvent;
+	withServerInfo(serverInfo: ServerInfo): TelemetryEvent;
 }
 
 /**
@@ -141,25 +151,37 @@ class TelemetryEventImpl implements TelemetryEvent {
 		return this;
 	}
 
-	public withConnectionInfo(connectionInfo: azdataType.IConnectionProfile): TelemetryEvent {
+	public withConnectionInfo(connectionInfo: ConnectionInfo): TelemetryEvent {
 		// IMPORTANT - If making changes here the same changes should generally be made in the AdsTelemetryService version as well
-		Object.assign(this.properties!,
-			{
-				authenticationType: connectionInfo.authenticationType,
-				providerName: connectionInfo.providerName
-			});
+
+		// Safeguard against invalid objects being passed in
+		if (typeof connectionInfo === 'object') {
+			Object.assign(this.properties!,
+				{
+					authenticationType: connectionInfo.authenticationType,
+					providerName: connectionInfo.providerName
+				});
+		} else {
+			console.error(`AdsTelemetryReporter received invalid ConnectionInfo object of type ${typeof connectionInfo}`)
+		}
 		return this;
 	}
 
-	public withServerInfo(serverInfo: azdataType.ServerInfo): TelemetryEvent {
+	public withServerInfo(serverInfo: ServerInfo): TelemetryEvent {
 		// IMPORTANT - If making changes here the same changes should generally be made in the AdsTelemetryService version as well
-		Object.assign(this.properties!,
-			{
-				connectionType: serverInfo?.isCloud !== undefined ? (serverInfo.isCloud ? 'Azure' : 'Standalone') : '',
-				serverVersion: serverInfo?.serverVersion ?? '',
-				serverEdition: serverInfo?.serverEdition ?? '',
-				serverEngineEdition: serverInfo?.engineEditionId ?? ''
-			});
+
+		// Safeguard against invalid objects being passed in
+		if (typeof serverInfo === 'object') {
+			Object.assign(this.properties!,
+				{
+					connectionType: serverInfo.isCloud !== undefined ? (serverInfo.isCloud ? 'Azure' : 'Standalone') : '',
+					serverVersion: serverInfo.serverVersion ?? '',
+					serverEdition: serverInfo.serverEdition ?? '',
+					serverEngineEdition: serverInfo.engineEditionId ?? ''
+				});
+		} else {
+			console.error(`AdsTelemetryReporter received invalid ServerInfo object of type ${typeof serverInfo}`)
+		}
 		return this;
 	}
 }
