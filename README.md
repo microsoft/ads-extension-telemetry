@@ -91,7 +91,7 @@ All properties are sanitized before sending to try and ensure that no sensitive 
 
 These checks are done using regexes in the `vscode-extension-telemetry` package, the current usage of which is below for version [0.6.1](https://github.com/microsoft/vscode-extension-telemetry/blob/3f927c1dbc0977bd056bcb3214edd797169c0d81/src/common/baseTelemetryReporter.ts). Make sure to verify that the current package version matches since otherwise these may be out of date.
 
-**User File Path** `user-file-path` - `(file:\/\/)?([a-zA-Z]:(\\\\|\\|\/)|(\\\\|\\|\/))?([\w-._]+(\\\\|\\|\/))+[\w-._]*`
+**User File Path** `user-file-path` - `(file:\/\/)?([a-zA-Z]:(\\\\|\\|\/)|(\\\\|\\|\/))?([\w-._]+(\\\\|\\|\/))+[\w-._]*` Note this can be a bit overzealous with determining what is or isn't a path - be careful if your values contain `/` or `\` in them otherwise they might get accidently redacted
 **Secret** `secret` - (value is lower-cased) `(key|token|sig|signature|password|passwd|pwd|android:value)[^a-zA-Z0-9]`
 **E-mail** `email` - `@[a-zA-Z0-9-.]+`
 **Token** `token` - `xox[pbaors]-[a-zA-Z0-9]+-[a-zA-Z0-9-]+?`
