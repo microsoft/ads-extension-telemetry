@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@types/azdata": "^1.41.0",
-    "@types/node": "^8.0.24",
+    "@types/node": "20.x",
     "typescript": "4.3.4"
   },
   "repository": {
