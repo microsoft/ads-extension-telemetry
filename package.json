@@ -20,7 +20,7 @@
     "@vscode/extension-telemetry": "0.9.8"
   },
   "devDependencies": {
-    "@types/azdata": "^1.41.0",
+    "@types/azdata": "^1.46.6",
     "@types/node": "20.x",
     "typescript": "5.7.3"
   },

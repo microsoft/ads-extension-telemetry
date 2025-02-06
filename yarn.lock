@@ -95,10 +95,10 @@
   resolved "https://registry.yarnpkg.com/@nevware21/ts-utils/-/ts-utils-0.11.6.tgz#49f43d0c488fcf127ef4bdd1356637092ed0c7e2"
   integrity sha512-OUUJTh3fnaUSzg9DEHgv3d7jC+DnPL65mIO7RaR+jWve7+MmcgIvF79gY97DPQ4frH+IpNR78YAYd/dW4gK3kg==
 
-"@types/azdata@^1.41.0":
-  version "1.41.0"
-  resolved "https://registry.yarnpkg.com/@types/azdata/-/azdata-1.41.0.tgz#503d7d6a9c4aa719d05aa39a33aa76eaed8334fc"
-  integrity sha512-6mw3UyZVirk5iTMNIwuv5TLr0SUxiHTmYnYieAPNakWJwz+gY+ZleoDrCQq7wnHyUMXFcZN5y2Z7kWUMuOdcWg==
+"@types/azdata@^1.46.6":
+  version "1.46.6"
+  resolved "https://registry.yarnpkg.com/@types/azdata/-/azdata-1.46.6.tgz#7403bfabc59b2b7fa48bef9cc1e86848f41afdc8"
+  integrity sha512-lOvRgMxrYuia+8l3EB+j5IaeGLHubmNf3RgGu9OmAxGAyXayjhZLoNAEjqNnVy/MmA35lwAXDpv2PDbNpCCnDA==
   dependencies:
     "@types/vscode" "*"
 
