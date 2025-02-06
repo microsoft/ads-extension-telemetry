@@ -9,7 +9,7 @@
   "types": "./lib/telemetryReporter.d.ts",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.5.0"
+    "vscode": "^1.83.1"
   },
   "scripts": {
     "compile": "tsc -p .",
