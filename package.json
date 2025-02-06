@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/azdata": "^1.41.0",
     "@types/node": "20.x",
-    "typescript": "4.3.4"
+    "typescript": "5.7.3"
   },
   "repository": {
     "type": "git",
