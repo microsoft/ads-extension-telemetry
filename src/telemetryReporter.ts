@@ -186,7 +186,7 @@ class TelemetryEventImpl implements TelemetryEvent {
 	}
 }
 
-export default class TelemetryReporter<V extends string = string, A extends string = string> {
+export default class TelemetryReporter<TView extends string = string, TAction extends string = string> {
 
 	private _telemetryReporter: VsCodeTelemetryReporter | undefined = undefined;
 
@@ -196,10 +196,10 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param extensionVersion The version of the extension sending the event
 	 * @param key The AI Key to use
 	 */
-	constructor(extensionId: string, extensionVersion: string, key: string) {
+	constructor(extensionId: string, _extensionVersion: string, key: string) {
 		// Try to initialize the reporter, but don't throw if it fails so we don't break the extension
 		try {
-			this._telemetryReporter = new VsCodeTelemetryReporter(extensionId, extensionVersion, key);
+			this._telemetryReporter = new VsCodeTelemetryReporter(key);
 		} catch (e) {
 			console.error(`Error initializing TelemetryReporter for '${extensionId}'. ${(e as Error)?.message ?? e}`);
 		}
@@ -209,7 +209,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * Creates a View event that can be sent later. This is used to log that a particular page or item was seen.
 	 * @param view The name of the page or item that was viewed
 	 */
-	public createViewEvent(view: V): TelemetryEvent {
+	public createViewEvent(view: TView): TelemetryEvent {
 		return new TelemetryEventImpl(this._telemetryReporter, 'view', {
 			view: view
 		});
@@ -219,7 +219,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * Sends a View event. This is used to log that a particular page or item was seen.
 	 * @param view The name of the page or item that was viewed
 	 */
-	public sendViewEvent(view: V): void {
+	public sendViewEvent(view: TView): void {
 		this.createViewEvent(view).send();
 	}
 
@@ -231,7 +231,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param source The source of the action
 	 * @param durationInMs The duration the action took to execute
 	 */
-	public createActionEvent(view: V, action: A, target: string = '', source: string = '', durationInMs?: number): TelemetryEvent {
+	public createActionEvent(view: TView, action: TAction, target: string = '', source: string = '', durationInMs?: number): TelemetryEvent {
 		const measures: TelemetryEventMeasures = durationInMs ? { durationInMs: durationInMs } : {};
 		return new TelemetryEventImpl(this._telemetryReporter, 'action', {
 			view: view,
@@ -249,7 +249,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param source The source of the action
 	 * @param durationInMs The duration the action took to execute
 	 */
-	public sendActionEvent(view: V, action: A, target: string = '', source: string = '', durationInMs?: number): void {
+	public sendActionEvent(view: TView, action: TAction, target: string = '', source: string = '', durationInMs?: number): void {
 		this.createActionEvent(view, action, target, source, durationInMs).send();
 	}
 
@@ -262,7 +262,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param source The source of the action
 	 * @returns The TimedAction object
 	 */
-	public createTimedAction(view: V, action: A, target?: string, source?: string): TimedAction {
+	public createTimedAction(view: TView, action: TAction, target?: string, source?: string): TimedAction {
 		return new TimedAction(this, view, action, target, source)
 	}
 
@@ -292,7 +292,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param errorType The specific type of error
 	 * @deprecated Use createErrorEvent2
 	 */
-	public createErrorEvent(view: V, name: string, errorCode: string = '', errorType: string = ''): TelemetryEvent {
+	public createErrorEvent(view: TView, name: string, errorCode: string = '', errorType: string = ''): TelemetryEvent {
 		return new TelemetryEventImpl(this._telemetryReporter, 'error', {
 			view: view,
 			name: name,
@@ -309,7 +309,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param errorType The specific type of error
 	 * @deprecated Use sendErrorEvent2
 	 */
-	public sendErrorEvent(view: V, name: string, errorCode: string = '', errorType: string = ''): void {
+	public sendErrorEvent(view: TView, name: string, errorCode: string = '', errorType: string = ''): void {
 		this.createErrorEvent(view, name, errorCode, errorType).send();
 	}
 
@@ -322,7 +322,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param errorCode The error code returned, default is empty
 	 * @param errorType The specific type of error, default is empty
 	 */
-	public createErrorEvent2(view: V, name: string, error: any = undefined, includeMessage: boolean = false, errorCode: string = '', errorType: string = ''): TelemetryEvent {
+	public createErrorEvent2(view: TView, name: string, error: any = undefined, includeMessage: boolean = false, errorCode: string = '', errorType: string = ''): TelemetryEvent {
 		const props: TelemetryEventProperties = {
 			view: view,
 			name: name,
@@ -354,7 +354,7 @@ export default class TelemetryReporter<V extends string = string, A extends stri
 	 * @param errorCode The error code returned
 	 * @param errorType The specific type of error
 	 */
-	public sendErrorEvent2(view: V, name: string, error: any = undefined, includeMessage: boolean = false, errorCode: string = '', errorType: string = ''): void {
+	public sendErrorEvent2(view: TView, name: string, error: any = undefined, includeMessage: boolean = false, errorCode: string = '', errorType: string = ''): void {
 		this.createErrorEvent2(view, name, error, includeMessage, errorCode, errorType).send();
 	}
 
